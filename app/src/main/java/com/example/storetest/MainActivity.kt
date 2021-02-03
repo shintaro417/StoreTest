@@ -12,6 +12,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.widget.Toast
 import com.example.storetest.databinding.ActivityMainBinding
+import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -49,8 +50,9 @@ class MainActivity : AppCompatActivity() {
                     resultData?.data?.also { uri ->
                         val inputStream = contentResolver?.openInputStream(uri)
                         val image = BitmapFactory.decodeStream(inputStream)
-                        val returnImage = saveImage(image)
-                        binding.imageView.setImageBitmap(returnImage)
+                        saveImage(image)
+                        val readImage = readImage()
+                        binding.imageView.setImageBitmap(readImage)
                     }
                 } catch (e: Exception) {
                     Toast.makeText(this, "エラーが発生しました", Toast.LENGTH_LONG).show()
@@ -58,12 +60,16 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-     private fun saveImage(bitmap:Bitmap):Bitmap{
+     private fun saveImage(bitmap:Bitmap){
          val byteArrOutputStream = ByteArrayOutputStream()
          val outStream = openFileOutput("image.jpg", Context.MODE_PRIVATE)
          bitmap.compress(Bitmap.CompressFormat.JPEG,100,outStream)
          outStream.write(byteArrOutputStream.toByteArray())
          outStream.close()
-         return bitmap
+    }
+
+    private fun readImage():Bitmap{
+        val bufferedInputStream = BufferedInputStream(openFileInput("image.jpg"))
+        return BitmapFactory.decodeStream(bufferedInputStream)
     }
 }
